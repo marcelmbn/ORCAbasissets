@@ -190,9 +190,9 @@ def orcaecpformat(f):
             elif "f" in lines[j].strip():
                 bfdict["angmom"].append("F")
             elif "g" in lines[j].strip():
-                bfdict["angmom"].append("F")
+                bfdict["angmom"].append("G")
             elif "h" in lines[j].strip():
-                bfdict["angmom"].append("F")
+                bfdict["angmom"].append("H")
             elif "i" in lines[j].strip():
                 print("No support of i or higher functions.")
                 exit()

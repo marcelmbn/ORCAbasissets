@@ -5,7 +5,7 @@ This program processes basis sets and ECPs.
 
 import argparse
 from src.readin import orcabasisformat, orcaecpformat
-from src.writebasis import orcabasissetcode, orcaecpcode, xtb_tblite_format_basis
+from src.writebasis import orcabasissetcode, orcaecpcode, xtb_tblite_format_basis, turbomole_format_basis, turbomole_format_ecp
 
 
 def printbasis(basis, desiredelem):
@@ -61,14 +61,7 @@ def printecp(ecp, desiredelem):
         print("  Number of primitives: " + str(ecp["lnpr"][desiredelem][i]))
         print("  Exponents and coefficients:")
         for j in range(0, ecp["lnpr"][desiredelem][i]):
-            print(
-                "    "
-                + str(ecp["exponents"][desiredelem][k])
-                + " "
-                + str(ecp["coefficients"][desiredelem][k])
-                + " "
-                + str(ecp["ecpnfactor"][desiredelem][k])
-            )
+            print(f"  {j+1} {ecp['exponents'][desiredelem][k]} {ecp['coefficients'][desiredelem][k]} {ecp['ecpnfactor'][desiredelem][k]}")
             k += 1
 
 # check for command line arguments based on argparse
@@ -101,7 +94,6 @@ parser.add_argument(
 parser.add_argument(
     "--format",
     type=str,
-    nargs=1,
     help="the format of the basis set",
     default="orca",
     required=False,
@@ -139,15 +131,19 @@ except:
 
 if not args.basismode and not args.ecpmode:
     print("No mode given.\nAssuming basis set mode.")
+    ecpmode = False
     basismode = True
 elif args.basismode and not args.ecpmode:
     print("Basis set mode.")
+    ecpmode = False
     basismode = True
 elif not args.basismode and args.ecpmode:
     print("ECP mode.")
     ecpmode = True
+    basismode = False
 else:
     print("Both modes given.\nAssuming basis set mode.")
+    ecpmode = False
     basismode = True
 
 if basismode:
@@ -160,11 +156,13 @@ if basismode:
         printbasis(basis, desiredelem)
 
     print("The format of the basis set is:")
-    print(args.format[0])
-    if args.format[0] == "orca":
+    print(args.format)
+    if args.format == "orca":
         orcabasissetcode(basis)
-    elif args.format[0] == "xtb":
+    elif args.format == "xtb":
         xtb_tblite_format_basis(basis)
+    elif args.format == "turbomole":
+        turbomole_format_basis(basis)
     else:
         print("Format not supported.")
         exit()
@@ -181,6 +179,8 @@ elif ecpmode:
     # if args.format not orca
     if args.format == "orca":
         orcaecpcode(ecp)
+    if args.format == "turbomole":
+        turbomole_format_ecp(ecp)
     else:
         print("Format not supported.")
         exit()

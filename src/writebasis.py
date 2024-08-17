@@ -309,3 +309,176 @@ def xtb_tblite_format_basis(bas):
                     print(f"& {tmpbasangmom}, ", file=ofile, end="")
                 else:
                     print(f"{tmpbasangmom}, ", file=ofile, end="")
+
+
+# write the basis set in the following TURBOMOLE format:
+# $basis
+# *
+# rb def2-TZVP
+# *
+#     2   s
+#       7.4744618040           0.26997866363
+#       6.7296180594          -0.42629251814
+#     1   s
+#       2.7816640004           1.0000000
+#     1   s
+#       0.53452175148          1.0000000
+#     1   s
+#       0.22368793034          1.0000000
+#     1   s
+#       0.32410407052D-01      1.0000000
+#     1   s
+#       0.14171047424D-01      1.0000000
+#     4   p
+#       5.6720643194           0.48114224135D-01
+#       3.3320183956          -0.18485131426
+#       0.80150054910          0.42811864954
+#       0.36302220227          0.58673165411
+#     1   p
+#       0.15733924392          1.0000000
+#     1   p
+#       0.40000000000D-01      1.0000000
+#     1   p
+#       0.16000000000D-01      1.0000000
+#     1   d
+#       0.25907866956          0.76806746340D-01
+#     1   d
+#       0.42507438045D-01      0.37846160487
+#     1   d
+#       0.11909276840D-01      1.0000000
+# *
+# sr def2-TZVP
+# *
+#     2   s
+#      10.000000000           -0.18530550262
+#       8.5000000000           0.33970355376
+#     1   s
+#       3.0057048856           1.0000000
+#     1   s
+#       0.61161287650          1.0000000
+#     1   s
+#       0.27393841217          1.0000000
+#     1   s
+#       0.57435564563D-01      1.0000000
+#     1   s
+#       0.23338198665D-01      1.0000000
+#     4   p
+#       7.5883077869           0.33731690287D-01
+#       3.6731307392          -0.20523185005
+#       0.90496618455          0.49209972665
+#       0.43310256408          0.62105296512
+#     1   p
+#       0.20222168964          1.0000000
+#     1   p
+#       0.72000000000D-01      1.0000000
+#     1   p
+#       0.25000000000D-01      1.0000000
+#     3   d
+#       3.6180810000          -0.75010000000D-02
+#       0.99665600000          0.10809800000
+#       0.39073500000          0.27854000000
+#     1   d
+#       0.12277000000          1.0000000
+#     1   d
+#       0.36655000000D-01      1.0000000
+# *
+# $end
+
+def turbomole_format_basis(bas) :
+    """
+    Write the basis set in the format of the TURBOMOLE input file
+    """
+    path = "output"
+    isExist = os.path.exists(path)
+    if not isExist:
+        # Create a new directory because it does not exist
+        os.makedirs(path)
+        print("Output directory was created!")
+
+    ofile = open("output/basis_turbomolesource.txt", "w", encoding="utf-8")
+    ofile.write("$basis\n*\n")
+    for i in range(0, len(bas["symb"])):
+        l = 0
+        ofile.write(f"{bas['symb'][i].lower()} vDZP\n*\n")
+        for j in range(0, bas["nbf"][i]):
+            ofile.write("    " + str(bas["lnpr"][i][j]) + "   " + bas["angmom"][i][j].lower() + "\n")
+            for _ in range(0, bas["lnpr"][i][j]):
+                ofile.write(f"{bas["exponents"][i][l]:>25}{bas["coefficients"][i][l]:>25}\n")
+                l += 1
+        ofile.write("*\n")
+    ofile.write("$end\n")
+    ofile.close()
+
+# writh the ECP in the following TURBOMOLE format:
+# $ecp
+# *
+# rb vDZP-ecp
+# *
+#   ncore = 28   lmax = 3
+# f
+#      -12.3169000      2       3.8431140
+# s-f
+#       89.5001980      2       5.0365510
+#        0.4937610      2       1.9708490
+#       12.3169000      2       3.8431140
+# p-f
+#       58.5689740      2       4.2583410
+#        0.4317910      2       1.4707090
+#       12.3169000      2       3.8431140
+# d-f
+#       26.2248980      2       3.0231270
+#        0.9628390      2       0.6503830
+#       12.3169000      2       3.8431140
+# *
+# sr vDZP-ecp
+# *
+#   ncore = 28   lmax = 3
+# f
+#      -15.8059920      2       4.6339750
+# s-f
+#      135.4794300      2       7.4000740
+#       17.5344630      2       3.6063790
+#       15.8059920      2       4.6339750
+# p-f
+#       88.3597090      2       6.4848680
+#       15.3943720      2       3.2880530
+#       15.8059920      2       4.6339750
+# d-f
+#       29.8889870      2       4.6228410
+#        6.6594140      2       2.2469040
+#       15.8059920      2       4.6339750
+# *
+# $end
+
+def turbomole_format_ecp(ecp):
+    """
+    Write the ECP in the format of the TURBOMOLE input file
+    """
+    path = "output"
+    isExist = os.path.exists(path)
+    if not isExist:
+        # Create a new directory because it does not exist
+        os.makedirs(path)
+        print("Output directory was created!")
+
+    ofile = open("output/ecp_turbomolesource.txt", "w", encoding="utf-8")
+    ofile.write("$ecp\n*\n")
+    for i in range(0, len(ecp["symb"])):
+        l = 0
+        ofile.write(f"{ecp['symb'][i].lower()} vDZP-ecp\n*\n")
+        ofile.write(f"  ncore = {ecp['ncore'][i]:2d}   lmax = {angmomdict[ecp['lmax'][i].upper()]:2d}\n")
+        ofile.write(f"{ecp['angmom'][i][-1].lower()}\n")
+        for j in range(0, ecp["nbf"][i]):
+            for _ in range(0, ecp["lnpr"][i][j]):
+                if j == ecp["nbf"][i]-1:
+                    ofile.write(f"{ecp['coefficients'][i][l]:>15}{ecp['ecpnfactor'][i][l]:>5}{ecp['exponents'][i][l]:>15}\n")
+                l += 1
+        l = 0
+        for j in range(0, ecp["nbf"][i]-1):
+            ofile.write(f"{ecp['angmom'][i][j].lower()}-{ecp['angmom'][i][ecp['nbf'][i]-1].lower()}\n")
+            for _ in range(0, ecp["lnpr"][i][j]):
+                ofile.write(f"{ecp['coefficients'][i][l]:>15}{ecp['ecpnfactor'][i][l]:>5}{ecp['exponents'][i][l]:>15}\n")
+                l += 1
+        ofile.write("*\n")
+    ofile.write("$end\n")
+    ofile.close()
